@@ -2,9 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ImpulsaDocs } from "@/components/impulsa-docs";
 
 export const Route = createFileRoute("/")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    doc: typeof search.doc === "string" ? search.doc : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { doc?: string } => {
+    const doc = search['doc'];
+    return typeof doc === "string" ? { doc } : {};
+  },
   head: () => ({
     meta: [
       { title: "Impulsa Docs — Seu primeiro passo no Open Source" },
