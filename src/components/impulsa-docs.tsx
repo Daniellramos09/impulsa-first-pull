@@ -16,6 +16,7 @@ import {
   Moon,
   Network,
   Orbit,
+  Rocket,
   Search,
   Sun,
   X,
