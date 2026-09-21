@@ -116,7 +116,7 @@ export function ImpulsaDocs({ initialSearch }: { initialSearch: AppSearch }) {
   };
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    document.documentElement.dataset.fontSize = fontSize;
+    document.documentElement.dataset['fontSize'] = fontSize;
   }, [theme, fontSize]);
   useEffect(() => {
     const handler = (event: KeyboardEvent) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") { event.preventDefault(); setSearchOpen(true); } };
