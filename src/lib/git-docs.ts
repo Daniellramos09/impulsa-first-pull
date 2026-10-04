@@ -1,0 +1,268 @@
+import type { DocPage, DocSection } from "./docs-data";
+
+type GitInput = {
+  slug: string;
+  title: string;
+  description: string;
+  time: string;
+  keywords: string[];
+  oque: string[];
+  serve: string[];
+  pense?: string;
+  como: string[];
+  exemplo?: { text?: string; code: string };
+  pratica: { text?: string; code: string; lang?: string };
+  erros: string[];
+  pratique: { text: string; code?: string };
+  checklist: string[];
+  veja: string[];
+};
+
+const build = (p: GitInput): DocPage => {
+  const sections: DocSection[] = [
+    { title: "O que é?", body: p.oque },
+    { title: "Para que serve?", bullets: p.serve },
+  ];
+  if (p.pense) sections.push({ title: "Pense assim", callout: { kind: "tip", title: "Uma comparação simples", text: p.pense } });
+  sections.push({ title: "Como funciona?", body: p.como });
+  if (p.exemplo) sections.push({ title: "Exemplo", ...(p.exemplo.text ? { body: [p.exemplo.text] } : {}), code: { language: "bash", value: p.exemplo.code } });
+  sections.push({ title: "Na prática", ...(p.pratica.text ? { body: [p.pratica.text] } : {}), code: { language: p.pratica.lang ?? "bash", value: p.pratica.code } });
+  sections.push({ title: "O que pode dar errado?", bullets: p.erros });
+  sections.push({ title: "🧪 Pratique", body: [p.pratique.text], ...(p.pratique.code ? { code: { language: "bash", value: p.pratique.code } } : {}) });
+  sections.push({ title: "✅ Checklist", checklist: p.checklist });
+  sections.push({ title: "🔗 Veja também", bullets: p.veja });
+  return { slug: p.slug, title: p.title, group: "Git", description: p.description, time: p.time, keywords: p.keywords, complete: true, sections };
+};
+
+export const gitPages: DocPage[] = [
+  build({
+    slug: "o-que-e-git", title: "O que é Git?", time: "8 min",
+    description: "Conheça o sistema que registra a história de um projeto.",
+    keywords: ["git", "versionamento", "controle de versão", "histórico"],
+    oque: ["Git é um sistema de controle de versão: um programa que registra as mudanças feitas nos arquivos de um projeto ao longo do tempo.", "Com esse histórico, você descobre o que mudou, quando mudou, quem mudou e, se precisar, volta para uma versão anterior."],
+    serve: ["Trabalhar sem medo de perder versões anteriores", "Testar ideias em uma linha de trabalho separada (branch)", "Colaborar sem sobrescrever o trabalho de outras pessoas", "Explicar cada mudança com uma mensagem"],
+    pense: "Cada commit é como uma foto do projeto com uma legenda. O Git guarda o álbum inteiro em ordem, e você pode abrir qualquer foto quando quiser.",
+    como: ["O Git trabalha com três áreas: a pasta de trabalho (onde você edita), a área de preparação ou staging (onde escolhe o que entra no próximo registro) e o repositório (onde ficam os commits).", "O fluxo básico é: editar arquivos → git add → git commit. Tudo isso acontece no seu computador, mesmo sem internet."],
+    exemplo: { text: "Um ciclo completo de trabalho:", code: "git status                 # o que mudou?\ngit add index.html         # prepara o arquivo\ngit commit -m \"feat: cria página inicial\"  # registra" },
+    pratica: { code: "git --version   # confirma que o Git está instalado\ngit help        # lista os comandos principais" },
+    erros: ["Achar que Git e GitHub são a mesma coisa", "Fazer commit sem conferir o que foi preparado", "Escrever mensagens vagas como “mudanças” ou “teste”"],
+    pratique: { text: "Crie uma pasta, transforme-a em repositório e leia a resposta do git status linha por linha.", code: "mkdir meu-primeiro-projeto\ncd meu-primeiro-projeto\ngit init\ngit status" },
+    checklist: ["Consigo explicar Git sem usar a palavra GitHub", "Sei o que é um commit", "Conheço as três áreas: trabalho, staging e repositório"],
+    veja: ["Instalação", "Git x GitHub", "git init", "git commit"],
+  }),
+  build({
+    slug: "instalacao", title: "Instalação do Git", time: "10 min",
+    description: "Instale o Git no Windows, macOS ou Linux e confirme que tudo funciona.",
+    keywords: ["instalar git", "instalação", "windows", "mac", "linux", "git bash", "download"],
+    oque: ["Antes de usar qualquer comando, o Git precisa estar instalado no seu computador. Ele é gratuito e funciona em Windows, macOS e Linux."],
+    serve: ["Liberar os comandos git no terminal", "No Windows, instalar também o Git Bash, um terminal pronto para uso"],
+    como: ["Você baixa o instalador oficial em git-scm.com (Windows), usa um gerenciador de pacotes (macOS e Linux) e depois confirma a instalação no terminal.", "Terminal é a janela onde você digita comandos de texto. No Windows, use o Git Bash; no macOS, o app Terminal; no Linux, o terminal da sua distribuição."],
+    pratica: { text: "Escolha o comando do seu sistema:", code: "# Windows: baixe em https://git-scm.com/download/win\n# e avance com as opções padrão do instalador\n\n# macOS (com Homebrew)\nbrew install git\n\n# Ubuntu / Debian\nsudo apt update\nsudo apt install git\n\n# Em qualquer sistema, confirme:\ngit --version" },
+    erros: ["“git não é reconhecido como comando”: feche e abra o terminal de novo; se persistir, reinstale marcando a opção de adicionar ao PATH", "Instalar e esquecer de configurar nome e e-mail (veja git config)", "Usar o Prompt de Comando no Windows sem saber que o Git Bash foi instalado"],
+    pratique: { text: "Instale o Git e rode o comando abaixo. Se aparecer algo como “git version 2.x”, deu certo.", code: "git --version" },
+    checklist: ["O Git está instalado", "Sei abrir um terminal no meu sistema", "git --version mostra um número de versão"],
+    veja: ["git config", "O que é Git?", "Deu erro"],
+  }),
+  build({
+    slug: "git-config", title: "git config", time: "6 min",
+    description: "Diga ao Git quem você é antes do seu primeiro commit.",
+    keywords: ["git config", "configurar git", "user.name", "user.email", "nome e email"],
+    oque: ["git config é o comando que define configurações do Git, como seu nome, seu e-mail e o nome da branch principal."],
+    serve: ["Identificar a autoria de cada commit", "Ligar seus commits à sua conta do GitHub (pelo e-mail)", "Ajustar preferências, como o editor de texto"],
+    pense: "É como assinar seu trabalho. Cada commit leva sua assinatura, e é por ela que o GitHub sabe que a contribuição é sua.",
+    como: ["Com a opção --global, a configuração vale para todos os projetos do seu computador. Sem ela, vale apenas para o repositório atual.", "Use o mesmo e-mail cadastrado no GitHub para que as contribuições apareçam no seu perfil."],
+    pratica: { code: "git config --global user.name \"Seu Nome\"\ngit config --global user.email \"voce@email.com\"\ngit config --global init.defaultBranch main\n\n# conferir tudo\ngit config --list" },
+    erros: ["Esquecer as aspas em nomes com espaço", "Usar um e-mail diferente do GitHub e os commits não aparecerem no perfil", "Digitar errado e achar que não dá para corrigir: basta rodar o comando de novo"],
+    pratique: { text: "Configure seu nome e e-mail e confira o resultado.", code: "git config --global user.name\ngit config --global user.email" },
+    checklist: ["Configurei meu nome", "Configurei o mesmo e-mail do GitHub", "Sei a diferença entre --global e local"],
+    veja: ["Instalação", "git commit", "O que é GitHub?"],
+  }),
+  build({
+    slug: "git-init", title: "git init", time: "5 min",
+    description: "Transforme uma pasta comum em um repositório Git.",
+    keywords: ["git init", "iniciar repositório", "criar repositório", "novo projeto"],
+    oque: ["git init cria um repositório Git dentro da pasta atual. A partir desse momento, o Git passa a acompanhar as mudanças daquela pasta."],
+    serve: ["Começar um projeto do zero com histórico", "Colocar um projeto existente sob controle de versão"],
+    pense: "É como abrir um caderno de registros para a pasta. Antes dele, nada era anotado.",
+    como: ["O comando cria uma pasta oculta chamada .git. É ali que o Git guarda todo o histórico. Seus arquivos continuam onde estavam.", "Se o projeto já existe no GitHub, você não usa git init: usa git clone."],
+    exemplo: { code: "cd meu-projeto\ngit init\n# Initialized empty Git repository in .../meu-projeto/.git/" },
+    pratica: { code: "mkdir site-pessoal\ncd site-pessoal\ngit init\nls -a   # mostra a pasta oculta .git" },
+    erros: ["Rodar git init na pasta errada (por exemplo, na pasta do usuário inteira)", "Rodar git init dentro de um projeto que já foi clonado", "Apagar a pasta .git e perder todo o histórico"],
+    pratique: { text: "Crie uma pasta, rode git init e confirme com git status que você está na branch main sem commits." , code: "mkdir treino-git && cd treino-git\ngit init\ngit status" },
+    checklist: ["Sei que git init cria a pasta .git", "Sei quando usar git init e quando usar git clone", "Não apago a pasta .git"],
+    veja: ["git status", "git clone", "git config"],
+  }),
+  build({
+    slug: "git-status", title: "git status", time: "6 min",
+    description: "Descubra a situação atual do seu repositório antes de qualquer ação.",
+    keywords: ["git status", "situação", "arquivos modificados", "untracked", "onde estou"],
+    oque: ["git status mostra o estado atual do repositório: em qual branch você está, quais arquivos mudaram e quais estão prontos para o próximo commit."],
+    serve: ["Conferir o que mudou antes de um git add", "Saber em qual branch você está", "Entender mensagens de erro e o próximo passo"],
+    pense: "É o “você está aqui” do mapa. Sempre que se sentir perdido, comece por ele.",
+    como: ["O resultado separa os arquivos em grupos: “Changes to be committed” (preparados), “Changes not staged” (modificados, ainda não preparados) e “Untracked files” (novos, que o Git ainda não acompanha).", "O próprio Git costuma sugerir o próximo comando entre parênteses."],
+    exemplo: { code: "$ git status\nOn branch main\nChanges not staged for commit:\n  modified:   index.html\nUntracked files:\n  style.css" },
+    pratica: { code: "git status\ngit status -s   # versão curta: M = modificado, ?? = novo, A = adicionado" },
+    erros: ["Ignorar o git status e fazer commit de arquivos que não deveriam entrar", "Não ler as dicas que o Git escreve na resposta", "Achar que “nothing to commit” é erro: significa que está tudo registrado"],
+    pratique: { text: "Crie um arquivo, rode git status, adicione-o e rode git status de novo. Observe como ele muda de grupo.", code: "echo \"Olá\" > notas.txt\ngit status\ngit add notas.txt\ngit status" },
+    checklist: ["Sei identificar minha branch atual", "Diferencio arquivo modificado, preparado e não rastreado", "Rodo git status antes de commitar"],
+    veja: ["git add", "git diff", "Deu erro"],
+  }),
+  build({
+    slug: "git-add", title: "git add", time: "6 min",
+    description: "Escolha quais mudanças entram no próximo commit.",
+    keywords: ["git add", "staging", "preparar arquivos", "adicionar arquivos"],
+    oque: ["git add move mudanças da pasta de trabalho para a área de preparação (staging). Só o que está preparado entra no próximo commit."],
+    serve: ["Selecionar exatamente o que será registrado", "Separar mudanças diferentes em commits diferentes", "Começar a acompanhar arquivos novos"],
+    pense: "É como separar as roupas na mala antes de fechá-la. O commit fecha a mala; o git add escolhe o que vai dentro.",
+    como: ["Você pode adicionar um arquivo, uma pasta ou tudo de uma vez. Depois de adicionar, se editar o arquivo de novo, precisa rodar git add outra vez para incluir a nova edição."],
+    exemplo: { code: "git add README.md        # um arquivo\ngit add src/             # uma pasta\ngit add .                # tudo na pasta atual" },
+    pratica: { code: "git status\ngit add index.html\ngit status\n\n# tirou algo por engano? remova da preparação:\ngit restore --staged index.html" },
+    erros: ["Usar git add . e incluir arquivos indesejados (senhas, node_modules)", "Esquecer que edições feitas depois do add não entram automaticamente", "Confundir git add com salvar o arquivo"],
+    pratique: { text: "Crie dois arquivos, adicione apenas um e confirme com git status que só ele está preparado.", code: "touch a.txt b.txt\ngit add a.txt\ngit status" },
+    checklist: ["Sei o que é staging", "Consigo adicionar um arquivo específico", "Sei remover um arquivo da preparação"],
+    veja: ["git status", "git commit", ".gitignore"],
+  }),
+  build({
+    slug: "git-commit", title: "git commit", time: "8 min",
+    description: "Registre suas mudanças com uma mensagem que explica o que foi feito.",
+    keywords: ["git commit", "commit", "mensagem de commit", "registrar", "salvar versão"],
+    oque: ["git commit cria um registro permanente com tudo que está na área de preparação, acompanhado de uma mensagem, autor e data."],
+    serve: ["Guardar um ponto do projeto ao qual você pode voltar", "Explicar para outras pessoas o que mudou e por quê", "Construir um histórico legível"],
+    pense: "Um commit é uma foto com legenda. Uma boa legenda ajuda quem olhar o álbum daqui a seis meses — inclusive você.",
+    como: ["Cada commit recebe um identificador único (hash), como a1b2c3d. Ele aponta para o commit anterior, formando uma corrente: o histórico.", "Muitos projetos usam prefixos na mensagem: feat (funcionalidade), fix (correção), docs (documentação)."],
+    exemplo: { code: "git commit -m \"docs: corrige link de instalação no README\"\ngit commit -m \"fix: impede envio do formulário vazio\"" },
+    pratica: { code: "git add README.md\ngit commit -m \"docs: adiciona seção de instalação\"\n\n# esqueceu algo no último commit (ainda sem push)?\ngit add arquivo-esquecido.md\ngit commit --amend --no-edit" },
+    erros: ["Rodar git commit sem -m e cair no editor Vim (para sair: Esc, digite :wq e Enter)", "Mensagens vagas como “ajustes” ou “final agora vai”", "Juntar mudanças sem relação no mesmo commit", "Usar --amend em um commit que já foi enviado com push"],
+    pratique: { text: "Faça três commits pequenos em um projeto de treino, cada um com uma mensagem clara, e depois veja o resultado com git log --oneline." },
+    checklist: ["Sei que só o que está preparado entra no commit", "Escrevo mensagens que explicam a mudança", "Sei sair do Vim se ele abrir"],
+    veja: ["git add", "git log", "Deu erro"],
+  }),
+  build({
+    slug: "git-log", title: "git log", time: "6 min",
+    description: "Leia o histórico de commits do projeto.",
+    keywords: ["git log", "histórico", "ver commits", "oneline"],
+    oque: ["git log mostra a lista de commits do repositório, do mais recente para o mais antigo, com autor, data, mensagem e hash."],
+    serve: ["Entender a evolução do projeto", "Encontrar quando e por que algo mudou", "Copiar o hash de um commit específico"],
+    pense: "É o diário do projeto. Cada entrada conta o que aconteceu naquele dia.",
+    como: ["A saída completa pode ser longa. Use as setas para navegar e a tecla q para sair. Opções como --oneline e --graph deixam a leitura mais fácil."],
+    exemplo: { code: "$ git log --oneline\na1b2c3d docs: adiciona seção de instalação\n9f8e7d6 feat: cria página inicial" },
+    pratica: { code: "git log\ngit log --oneline\ngit log --oneline --graph --all   # mostra branches\ngit log -3                       # últimos 3 commits\ngit log -- README.md             # histórico de um arquivo" },
+    erros: ["Ficar “preso” na tela do log: aperte q para sair", "Achar que commits sumiram quando, na verdade, estão em outra branch (use --all)"],
+    pratique: { text: "No seu projeto de treino, rode git log --oneline --graph --all e identifique o commit mais antigo." },
+    checklist: ["Sei sair do git log com q", "Uso --oneline para uma visão rápida", "Sei encontrar o hash de um commit"],
+    veja: ["git commit", "git diff", "git branch"],
+  }),
+  build({
+    slug: "git-diff", title: "git diff", time: "7 min",
+    description: "Veja exatamente quais linhas mudaram antes de registrar.",
+    keywords: ["git diff", "diferença", "o que mudou", "comparar"],
+    oque: ["git diff mostra as diferenças linha por linha entre versões: o que foi removido e o que foi adicionado."],
+    serve: ["Revisar suas mudanças antes do git add ou do commit", "Evitar enviar alterações acidentais", "Comparar branches"],
+    como: ["Linhas que começam com - (geralmente vermelhas) foram removidas. Linhas com + (geralmente verdes) foram adicionadas.", "Sem opções, mostra o que ainda não foi preparado. Com --staged, mostra o que já está preparado para o commit."],
+    exemplo: { code: "$ git diff\n-<h1>Bem vindo</h1>\n+<h1>Bem-vindo</h1>" },
+    pratica: { code: "git diff               # mudanças ainda não preparadas\ngit diff --staged      # mudanças já preparadas\ngit diff main minha-branch   # compara branches" },
+    erros: ["git diff vazio depois do git add: use git diff --staged", "Não revisar o diff e enviar espaços ou linhas de teste esquecidas"],
+    pratique: { text: "Edite uma linha de um arquivo, rode git diff, depois git add e git diff --staged. Compare as duas saídas." },
+    checklist: ["Sei ler linhas com + e -", "Sei a diferença entre git diff e git diff --staged", "Reviso o diff antes de commitar"],
+    veja: ["git status", "git add", "Pull Request"],
+  }),
+  build({
+    slug: "git-branch", title: "git branch", time: "8 min",
+    description: "Crie linhas de trabalho separadas para desenvolver sem afetar a principal.",
+    keywords: ["git branch", "branch", "criar branch", "ramificação", "listar branches"],
+    oque: ["Uma branch é uma linha de trabalho independente. git branch lista, cria, renomeia e apaga branches."],
+    serve: ["Desenvolver uma mudança sem mexer na branch main", "Trabalhar em várias tarefas ao mesmo tempo", "Abrir Pull Requests organizadas, uma por tarefa"],
+    pense: "Imagine um caminho principal com trilhas paralelas. Você explora uma trilha e, se der certo, ela volta a se juntar ao caminho principal.",
+    como: ["Criar uma branch é rápido e barato: o Git só cria um ponteiro para o commit atual. Os commits feitos nela não aparecem na main até você fazer merge.", "Use nomes descritivos, como docs/corrige-readme ou fix/botao-login."],
+    exemplo: { code: "$ git branch\n* main\n  docs/corrige-readme" },
+    pratica: { code: "git branch                       # lista (* marca a atual)\ngit branch docs/corrige-readme   # cria\ngit branch -m novo-nome          # renomeia a atual\ngit branch -d docs/corrige-readme  # apaga (já mesclada)" },
+    erros: ["Criar a branch e esquecer de mudar para ela (git branch só cria)", "Trabalhar direto na main em projetos colaborativos", "Nomes genéricos como “teste” ou “branch2”"],
+    pratique: { text: "Crie uma branch, mude para ela, faça um commit e volte para a main. Observe que o arquivo novo não está lá.", code: "git branch experimento\ngit switch experimento\necho \"teste\" > exp.txt\ngit add exp.txt && git commit -m \"chore: experimento\"\ngit switch main\nls" },
+    checklist: ["Sei listar e criar branches", "Sei que git branch não troca de branch", "Uso nomes descritivos"],
+    veja: ["git switch", "git merge", "Pull Request"],
+  }),
+  build({
+    slug: "git-switch", title: "git switch", time: "5 min",
+    description: "Mude de uma branch para outra com segurança.",
+    keywords: ["git switch", "trocar branch", "mudar de branch", "checkout"],
+    oque: ["git switch troca a branch em que você está trabalhando. É a forma moderna e mais clara do antigo git checkout para branches."],
+    serve: ["Ir para a branch de uma tarefa", "Voltar para a main", "Criar e já entrar em uma nova branch"],
+    como: ["Ao trocar de branch, o Git atualiza os arquivos da pasta para refletir aquela linha de trabalho. Se houver mudanças não registradas que entrariam em conflito, ele avisa e não troca."],
+    pratica: { code: "git switch main                 # vai para a main\ngit switch -c fix/botao-login   # cria e entra na nova branch\ngit switch -                    # volta para a branch anterior\n\n# equivalente antigo:\ngit checkout -b fix/botao-login" },
+    erros: ["Trocar de branch com mudanças não salvas e receber um aviso: faça commit ou use git stash antes", "Confundir o nome e criar uma branch nova sem querer com -c", "Esquecer em qual branch está: confira com git status"],
+    pratique: { text: "Use git switch -c para criar uma branch, depois git switch - para alternar entre ela e a main duas vezes." },
+    checklist: ["Sei trocar de branch", "Sei criar e entrar com -c", "Confiro a branch atual antes de commitar"],
+    veja: ["git branch", "git status", "Deu erro"],
+  }),
+  build({
+    slug: "git-merge", title: "git merge", time: "9 min",
+    description: "Junte o trabalho de uma branch em outra e aprenda a lidar com conflitos.",
+    keywords: ["git merge", "mesclar", "juntar branches", "conflito", "merge conflict"],
+    oque: ["git merge traz os commits de outra branch para a branch atual, unindo as duas linhas de trabalho."],
+    serve: ["Incorporar uma funcionalidade pronta na main", "Atualizar sua branch com novidades da main"],
+    pense: "É a trilha paralela voltando a se encontrar com o caminho principal.",
+    como: ["Você primeiro vai para a branch que vai receber as mudanças e depois executa o merge apontando a branch de origem.", "Se as duas branches alteraram a mesma linha, o Git não sabe qual manter e marca um conflito para você decidir."],
+    exemplo: { text: "Como um conflito aparece no arquivo:", code: "<<<<<<< HEAD\n<h1>Olá, mundo</h1>\n=======\n<h1>Bem-vindo</h1>\n>>>>>>> minha-branch" },
+    pratica: { code: "git switch main\ngit merge docs/corrige-readme\n\n# em caso de conflito:\n# 1. abra os arquivos indicados e escolha o conteúdo final\n# 2. remova as marcações <<<<<<< ======= >>>>>>>\ngit add arquivo-resolvido.html\ngit commit\n\n# desistir do merge:\ngit merge --abort" },
+    erros: ["Fazer merge estando na branch errada", "Deixar as marcações <<<<<<< no arquivo", "Entrar em pânico com conflito: ele é normal e tem solução"],
+    pratique: { text: "Crie duas branches que alteram a mesma linha de um arquivo e faça o merge para provocar e resolver um conflito em segurança." },
+    checklist: ["Sei em qual branch rodar o merge", "Sei reconhecer e resolver um conflito", "Sei cancelar com git merge --abort"],
+    veja: ["git branch", "Conflitos", "git pull"],
+  }),
+  build({
+    slug: "git-clone", title: "git clone", time: "6 min",
+    description: "Baixe uma cópia completa de um repositório para o seu computador.",
+    keywords: ["git clone", "clonar", "baixar repositório", "copiar projeto"],
+    oque: ["git clone baixa um repositório remoto (por exemplo, do GitHub) com todos os arquivos e todo o histórico."],
+    serve: ["Começar a trabalhar em um projeto existente", "Baixar o seu fork para contribuir com Open Source"],
+    pense: "É pegar uma cópia completa do livro, com todas as versões anteriores, e não apenas a última página.",
+    como: ["O comando cria uma pasta com o nome do projeto e já configura um remote chamado origin, que aponta para o endereço de onde você clonou.", "Em Open Source, normalmente você clona o seu fork, não o repositório original."],
+    exemplo: { code: "git clone https://github.com/seu-usuario/projeto.git\ncd projeto" },
+    pratica: { code: "git clone https://github.com/seu-usuario/projeto.git\ncd projeto\ngit remote -v   # mostra o origin\n\n# conectar ao repositório original (upstream)\ngit remote add upstream https://github.com/dono/projeto.git" },
+    erros: ["Clonar o repositório original em vez do fork e não conseguir fazer push", "Esquecer de entrar na pasta com cd", "Clonar dentro de outro repositório Git"],
+    pratique: { text: "Clone o repositório First Contributions (github.com/firstcontributions/first-contributions) e rode git log --oneline -5." },
+    checklist: ["Sei clonar um repositório", "Sei o que é origin", "Sei por que clonar o fork"],
+    veja: ["Fork", "git pull", "Minha primeira contribuição"],
+  }),
+  build({
+    slug: "git-pull", title: "git pull", time: "6 min",
+    description: "Traga para o seu computador as novidades do repositório remoto.",
+    keywords: ["git pull", "atualizar", "baixar mudanças", "sincronizar"],
+    oque: ["git pull busca as mudanças do repositório remoto e as junta à sua branch atual."],
+    serve: ["Manter seu projeto local atualizado", "Evitar conflitos antes de começar uma tarefa", "Resolver push recusado por falta de atualizações"],
+    como: ["Na verdade, git pull executa dois passos: git fetch (baixa as novidades) e git merge (junta na sua branch). Com --rebase, ele reaplica seus commits por cima das novidades, mantendo o histórico linear."],
+    pratica: { code: "git switch main\ngit pull origin main\n\n# atualizar o fork com o projeto original\ngit pull upstream main\n\n# histórico linear\ngit pull --rebase origin main" },
+    erros: ["Rodar git pull com mudanças não registradas e receber aviso: faça commit antes", "Puxar a branch errada para a branch atual", "Receber conflito: resolva como em um merge"],
+    pratique: { text: "Edite o README direto no GitHub (pelo navegador), depois rode git pull no computador e veja a mudança chegar." },
+    checklist: ["Sei atualizar minha branch", "Sei que pull = fetch + merge", "Atualizo a main antes de criar uma nova branch"],
+    veja: ["git push", "git merge", "Push recusado"],
+  }),
+  build({
+    slug: "git-push", title: "git push", time: "7 min",
+    description: "Envie seus commits locais para o repositório no GitHub.",
+    keywords: ["git push", "enviar", "subir commits", "push recusado", "upstream"],
+    oque: ["git push envia os commits da sua branch local para o repositório remoto, deixando-os disponíveis no GitHub."],
+    serve: ["Publicar seu trabalho", "Preparar uma Pull Request", "Ter uma cópia de segurança fora do computador"],
+    pense: "Commit guarda no seu caderno. Push entrega uma cópia do caderno para a turma.",
+    como: ["Na primeira vez que envia uma branch, use -u para ligar a branch local à remota. Depois disso, basta git push.", "O GitHub pede autenticação. Hoje, em vez de senha, usa-se um token de acesso ou chave SSH."],
+    pratica: { code: "git push -u origin docs/corrige-readme   # primeira vez\ngit push                                 # próximas vezes" },
+    erros: ["Push recusado (rejected): o remoto tem commits que você não tem — rode git pull antes", "Erro de autenticação: configure um token ou SSH, a senha comum não funciona", "Usar --force sem entender e apagar trabalho de outras pessoas"],
+    pratique: { text: "Crie um repositório vazio no GitHub, conecte-o ao seu projeto de treino e envie a branch main.", code: "git remote add origin https://github.com/seu-usuario/treino.git\ngit push -u origin main" },
+    checklist: ["Sei enviar uma branch nova com -u", "Sei o que fazer em push recusado", "Não uso --force por impulso"],
+    veja: ["git pull", "Pull Request", "Push recusado"],
+  }),
+  build({
+    slug: "gitignore", title: ".gitignore", time: "6 min",
+    description: "Diga ao Git quais arquivos ele nunca deve acompanhar.",
+    keywords: [".gitignore", "gitignore", "ignorar arquivos", "node_modules", ".env", "senha"],
+    oque: [".gitignore é um arquivo de texto na raiz do projeto que lista arquivos e pastas que o Git deve ignorar."],
+    serve: ["Proteger senhas e chaves (arquivos .env)", "Evitar enviar pastas enormes, como node_modules", "Não versionar arquivos gerados automaticamente ou do sistema"],
+    pense: "É a lista de “não levar” na mala. Mesmo com git add ., esses itens ficam de fora.",
+    como: ["Cada linha é um padrão. * significa “qualquer coisa”, / no final indica pasta e # inicia um comentário.", "O .gitignore só vale para arquivos ainda não rastreados. Se já fez commit de um arquivo, precisa removê-lo do rastreamento."],
+    pratica: { lang: "text", code: "# dependências\nnode_modules/\n\n# variáveis de ambiente e senhas\n.env\n\n# arquivos gerados\ndist/\n*.log\n\n# sistema\n.DS_Store\nThumbs.db" },
+    erros: ["Criar o arquivo com nome errado (gitignore.txt): o nome é exatamente .gitignore", "Adicionar ao .gitignore um arquivo já commitado — remova com git rm --cached arquivo", "Enviar um .env com senha: troque a senha imediatamente, apagar o commit não basta"],
+    pratique: { text: "Crie um arquivo .env, adicione-o ao .gitignore e confirme com git status que ele não aparece.", code: "echo \"SENHA=123\" > .env\necho \".env\" >> .gitignore\ngit status" },
+    checklist: ["Sei criar um .gitignore", "Nunca envio senhas ou .env", "Sei parar de rastrear um arquivo já commitado"],
+    veja: ["git add", "git status", "Como ler um repositório"],
+  }),
+];
