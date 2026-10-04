@@ -10,6 +10,7 @@ import {
   Rocket,
   type LucideIcon,
 } from "lucide-react";
+import { gitPages } from "./git-docs";
 
 export type DocSection = {
   title: string;
@@ -34,7 +35,7 @@ export type DocPage = {
 
 export type NavGroup = { title: string; icon: LucideIcon; items: { title: string; slug: string }[] };
 
-const completePages: DocPage[] = [
+const basePages: DocPage[] = [
   {
     slug: "comece-aqui",
     title: "Comece aqui",
@@ -48,25 +49,6 @@ const completePages: DocPage[] = [
       { title: "O caminho que vamos percorrer", table: { headers: ["Etapa", "O que você conquista"], rows: [["Aprender", "Entende Git, GitHub e colaboração"], ["Praticar", "Repete os comandos sem medo de errar"], ["Contribuir", "Envia uma mudança para um projeto"], ["Receber feedback", "Aprende com a revisão de outras pessoas"], ["Registrar", "Transforma a experiência em portfólio"]] } },
       { title: "Pense assim", callout: { kind: "tip", title: "Uma trilha, não uma prova", text: "Você pode voltar, repetir e consultar. O objetivo não é memorizar comandos; é saber onde encontrar a resposta e entender o próximo passo." } },
       { title: "Antes de começar", checklist: ["Tenho uma conta no GitHub ou sei que poderei criar uma", "Consigo reservar 20 minutos para praticar", "Aceito que erros fazem parte do processo", "Vou consultar o glossário quando encontrar um termo novo"] },
-    ],
-  },
-  {
-    slug: "o-que-e-git",
-    title: "O que é Git?",
-    group: "Git",
-    description: "Conheça o sistema que registra a história de um projeto.",
-    time: "8 min",
-    keywords: ["git", "versionamento", "commit", "histórico"],
-    complete: true,
-    sections: [
-      { title: "O que é?", body: ["Git é um sistema de controle de versão. Ele registra mudanças feitas em arquivos ao longo do tempo, como um histórico organizado do projeto.", "Com esse histórico, você pode descobrir o que mudou, quem fez a mudança e, quando necessário, recuperar uma versão anterior."] },
-      { title: "Para que serve?", bullets: ["Trabalhar sem perder versões anteriores", "Experimentar em uma branch separada", "Colaborar sem sobrescrever o trabalho de outras pessoas", "Explicar mudanças por meio de commits"] },
-      { title: "Pense assim", callout: { kind: "tip", title: "Um álbum de momentos do projeto", text: "Cada commit é como uma foto acompanhada de uma legenda. O Git organiza essas fotos para que você possa entender a evolução do trabalho." } },
-      { title: "Como funciona?", body: ["Você altera arquivos na sua pasta de trabalho, escolhe quais mudanças entrarão no próximo registro com git add e cria esse registro com git commit."], code: { language: "bash", value: "git status\ngit add README.md\ngit commit -m \"docs: melhora instruções iniciais\"" } },
-      { title: "Erros comuns", bullets: ["Pensar que Git e GitHub são a mesma coisa", "Criar commits sem verificar os arquivos selecionados", "Usar mensagens vagas como “mudanças” ou “teste”"] },
-      { title: "🧪 Pratique", body: ["Crie uma pasta chamada meu-primeiro-projeto, entre nela e execute git init. Depois, rode git status e leia a resposta linha por linha."], code: { language: "bash", value: "mkdir meu-primeiro-projeto\ncd meu-primeiro-projeto\ngit init\ngit status" } },
-      { title: "✅ Checklist", checklist: ["Consigo explicar Git sem usar a palavra GitHub", "Sei que commit é um registro de mudanças", "Entendo que git status mostra a situação atual"] },
-      { title: "🔗 Veja também", bullets: ["Git x GitHub", "git status", "git commit"] },
     ],
   },
   {
@@ -172,9 +154,11 @@ const completePages: DocPage[] = [
   },
 ];
 
+const completePages: DocPage[] = [basePages[0]!, gitPages[0]!, basePages[1]!, ...gitPages.slice(1), ...basePages.slice(2)];
+
 export const navGroups: NavGroup[] = [
   { title: "Comece aqui", icon: Home, items: [{ title: "Introdução", slug: "comece-aqui" }, { title: "O que é Open Source?", slug: "o-que-e-open-source" }, { title: "Por que contribuir?", slug: "por-que-contribuir" }, { title: "Como funciona a trilha?", slug: "como-funciona-a-trilha" }] },
-  { title: "Git", icon: GitBranch, items: ["O que é Git?", "Git x GitHub", "git init", "git status", "git add", "git commit", "Branches", "Merge", "Conflitos", "git clone", "git pull", "git push", ".gitignore"].map((title) => ({ title, slug: title === "O que é Git?" ? "o-que-e-git" : title === "Git x GitHub" ? "git-x-github" : title.toLowerCase().replaceAll(" ", "-").replace(".", "") })) },
+  { title: "Git", icon: GitBranch, items: [["O que é Git?", "o-que-e-git"], ["Git x GitHub", "git-x-github"], ["Instalação", "instalacao"], ["git config", "git-config"], ["git init", "git-init"], ["git status", "git-status"], ["git add", "git-add"], ["git commit", "git-commit"], ["git log", "git-log"], ["git diff", "git-diff"], ["git branch", "git-branch"], ["git switch", "git-switch"], ["git merge", "git-merge"], ["git clone", "git-clone"], ["git pull", "git-pull"], ["git push", "git-push"], [".gitignore", "gitignore"]].map(([title, slug]) => ({ title: title!, slug: slug! })) },
   { title: "GitHub", icon: Github, items: [{ title: "O que é GitHub?", slug: "o-que-e-github" }, { title: "Repositórios", slug: "repositorios" }, { title: "README", slug: "readme" }, { title: "Issues", slug: "issues" }, { title: "Fork", slug: "fork" }, { title: "Branches", slug: "github-branches" }, { title: "Pull Requests", slug: "pull-request" }, { title: "Code Review", slug: "code-review" }] },
   { title: "Open Source", icon: Globe2, items: [{ title: "O que é Open Source?", slug: "o-que-e-open-source" }, { title: "Quem pode contribuir?", slug: "quem-pode-contribuir" }, { title: "Contribuição não é somente código", slug: "contribuicao-alem-codigo" }, { title: "Como ler um repositório", slug: "como-ler-repositorio" }, { title: "Good First Issue", slug: "good-first-issue" }, { title: "Help Wanted", slug: "help-wanted" }, { title: "Como escolher um projeto", slug: "como-encontrar-projeto" }] },
   { title: "Minha primeira contribuição", icon: Rocket, items: [{ title: "Jornada completa", slug: "primeira-contribuicao" }] },
