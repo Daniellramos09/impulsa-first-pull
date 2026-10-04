@@ -105,6 +105,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async />
       </head>
       <body>
         {children}

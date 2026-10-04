@@ -87,7 +87,106 @@ function SearchDialog({ open, onOpenChange, onSelect }: { open: boolean; onOpenC
 }
 
 function SidebarNav({ current, onSelect, onClose }: { current?: string | undefined; onSelect: (slug: string) => void; onClose?: (() => void) | undefined }) {
-  return <div className="flex h-full flex-col bg-sidebar"><div className="flex h-20 items-center justify-between border-b border-sidebar-border px-5"><Logo />{onClose && <Button variant="ghost" size="icon" onClick={onClose} aria-label="Fechar menu" className="min-h-11 min-w-11"><X /></Button>}</div><div className="flex-1 overflow-y-auto px-3 py-5"><nav aria-label="Documentação" className="space-y-5">{navGroups.map((group) => { const Icon = group.icon; return <div key={group.title}><div className="mb-1 flex items-center gap-2 px-3 text-xs font-bold uppercase text-sidebar-foreground/65"><Icon className="size-4" /><span>{group.title}</span></div><ul className="space-y-0.5">{group.items.map((item) => <li key={`${group.title}-${item.slug}`}><Button variant="ghost" onClick={() => { onSelect(item.slug); onClose?.(); }} className={cn("h-auto min-h-9 w-full justify-start whitespace-normal px-3 py-2 text-left text-sm font-normal text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground", current === item.slug && "bg-sidebar-accent font-semibold text-sidebar-primary")}><span className={cn("mr-1 h-1.5 w-1.5 shrink-0 rounded-full bg-transparent", current === item.slug && "bg-primary")} />{item.title}</Button></li>)}</ul></div>; })}</nav></div><div className="border-t border-sidebar-border p-4"><div className="flex items-center gap-2 text-xs text-sidebar-foreground/60"><Network className="size-4 text-primary" />Feito para a comunidade</div></div></div>;
+  const activeGroup = navGroups.find((group) => group.items.some((item) => item.slug === current))?.title;
+  const [openGroups, setOpenGroups] = useState<Set<string>>(
+    () => new Set(activeGroup ? [activeGroup] : []),
+  );
+
+  useEffect(() => {
+    if (activeGroup) {
+      setOpenGroups((groups) => new Set(groups).add(activeGroup));
+    }
+  }, [activeGroup]);
+
+  const toggleGroup = (title: string) => {
+    setOpenGroups((groups) => {
+      const nextGroups = new Set(groups);
+      if (nextGroups.has(title)) {
+        nextGroups.delete(title);
+      } else {
+        nextGroups.add(title);
+      }
+      return nextGroups;
+    });
+  };
+
+  return (
+    <div className="flex h-full flex-col bg-sidebar">
+      <div className="flex h-20 items-center justify-between border-b border-sidebar-border px-5">
+        <Logo />
+        {onClose && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            aria-label="Fechar menu"
+            className="min-h-11 min-w-11"
+          >
+            <X />
+          </Button>
+        )}
+      </div>
+      <div className="flex-1 overflow-y-auto px-3 py-5">
+        <nav aria-label="Documentação" className="space-y-5">
+          {navGroups.map((group) => {
+            const Icon = group.icon;
+            const isOpen = openGroups.has(group.title);
+
+            return (
+              <div key={group.title}>
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group.title)}
+                  aria-expanded={isOpen}
+                  className="mb-1 flex w-full items-center gap-2 rounded-sm px-3 py-2 text-left text-xs font-bold uppercase text-sidebar-foreground/65 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                >
+                  <Icon className="size-4" />
+                  <span className="flex-1">{group.title}</span>
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={cn("size-4 shrink-0 transition-transform", isOpen && "rotate-180")}
+                  />
+                </button>
+                {isOpen && (
+                  <ul className="space-y-0.5">
+                    {group.items.map((item) => (
+                      <li key={`${group.title}-${item.slug}`}>
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            onSelect(item.slug);
+                            onClose?.();
+                          }}
+                          className={cn(
+                            "h-auto min-h-9 w-full justify-start whitespace-normal px-3 py-2 text-left text-sm font-normal text-sidebar-foreground/75 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                            current === item.slug &&
+                              "bg-sidebar-accent font-semibold text-sidebar-primary",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "mr-1 h-1.5 w-1.5 shrink-0 rounded-full bg-transparent",
+                              current === item.slug && "bg-primary",
+                            )}
+                          />
+                          {item.title}
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            );
+          })}
+        </nav>
+      </div>
+      <div className="border-t border-sidebar-border p-4">
+        <div className="flex items-center gap-2 text-xs text-sidebar-foreground/60">
+          <Network className="size-4 text-primary" />Feito para a comunidade
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function HomePage({ onSelect }: { onSelect: (slug: string) => void }) {
